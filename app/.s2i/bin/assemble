@@ -1,0 +1,15 @@
+#!/bin/bash
+echo "Before assembling"
+
+yum install npm
+
+/usr/libexec/s2i/assemble
+rc=$?
+
+if [ $rc -eq 0 ]; then
+    echo "After successful assembling"
+else
+    echo "After failed assembling"
+fi
+
+exit $rc
