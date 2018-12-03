@@ -94,7 +94,7 @@ items:
       app: webapp
     name: webapp
   spec:
-    host: webapp-myproject.192.168.1.23.nip.io
+    #host: webapp-myproject.192.168.1.23.nip.io
     port:
       targetPort: 8080-tcp
     to:
