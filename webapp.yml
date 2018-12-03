@@ -1,0 +1,105 @@
+---
+apiVersion: v1
+kind: List
+metadata: {}
+items:
+- apiVersion: v1
+  kind: ImageStream
+  metadata:
+    generation: 1
+    name: webapp
+  spec:
+    lookupPolicy:
+      local: false
+- kind: BuildConfig
+  apiVersion: v1
+  metadata:
+    name: webapp
+  spec:
+    successfulBuildsHistoryLimit: 2
+    failedBuildsHistoryLimit: 2
+    runPolicy: Serial
+    triggers:
+      -
+        type: ImageChange
+    source:
+      git:
+        ref: master
+        uri: 'https://github.com/Thib-G/openshift-vue-flask.git'
+      type: Git
+      contextDir: 'app/'
+    strategy:
+      sourceStrategy:
+        from:
+          kind: ImageStreamTag
+          name: rhoar-nodejs-10-webapp:latest
+          namespace: myproject
+    output:
+      to:
+        kind: ImageStreamTag
+        name: webapp:latest
+- kind: DeploymentConfig
+  apiVersion: v1
+  metadata:
+    name: webapp
+  spec:
+    replicas: 2
+    selector:
+      app: webapp
+      deploymentconfig: webapp
+    strategy:
+      type: Rolling
+    template:
+      metadata:
+        labels:
+          app: webapp
+          deploymentconfig: webapp
+      spec:
+        containers:
+          - env:
+            name: vue-cli
+            image: webapp
+            ports:
+              - containerPort: 8080
+                protocol: TCP
+    triggers:
+      - type: ConfigChange
+      - type: ImageChange
+        imageChangeParams:
+          automatic: true
+          containerNames:
+            - vue-cli
+          from:
+            kind: ImageStreamTag
+            name: 'webapp:latest'
+- apiVersion: v1
+  kind: Service
+  metadata:
+    labels:
+      app: webapp
+    name: webapp
+  spec:
+    ports:
+    - name: 8080-tcp
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+    selector:
+      deploymentconfig: webapp
+      
+- apiVersion: v1
+  kind: Route
+  metadata:
+    labels:
+      app: webapp
+    name: webapp
+  spec:
+    host: webapp-myproject.192.168.1.23.nip.io
+    port:
+      targetPort: 8080-tcp
+    to:
+      kind: Service
+      name: webapp
+      weight: 100
+    wildcardPolicy: None
+

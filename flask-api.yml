@@ -1,0 +1,106 @@
+---
+apiVersion: v1
+kind: List
+metadata: {}
+items:
+- apiVersion: v1
+  kind: ImageStream
+  metadata:
+    generation: 1
+    name: flask-api
+  spec:
+    lookupPolicy:
+      local: false
+- kind: BuildConfig
+  apiVersion: v1
+  metadata:
+    name: flask-api
+  spec:
+    successfulBuildsHistoryLimit: 2
+    failedBuildsHistoryLimit: 2
+    runPolicy: Serial
+    triggers:
+      -
+        type: ImageChange
+    source:
+      git:
+        ref: master
+        uri: 'https://github.com/Thib-G/openshift-vue-flask.git'
+      type: Git
+      contextDir: 'api/'
+    strategy:
+      sourceStrategy:
+        from:
+          kind: ImageStreamTag
+          name: python-36-rhel7:latest
+          namespace: myproject
+    output:
+      to:
+        kind: ImageStreamTag
+        name: flask-api:latest
+- kind: DeploymentConfig
+  apiVersion: v1
+  metadata:
+    name: flask-api
+  spec:
+    replicas: 2
+    selector:
+      app: flask-api
+      deploymentconfig: flask-api
+    strategy:
+      type: Rolling
+    template:
+      metadata:
+        labels:
+          app: flask-api
+          deploymentconfig: flask-api
+      spec:
+        containers:
+          - env:
+            name: vue-cli
+            image: flask-api
+            ports:
+              - containerPort: 8080
+                protocol: TCP
+    triggers:
+      - type: ConfigChange
+      - type: ImageChange
+        imageChangeParams:
+          automatic: true
+          containerNames:
+            - vue-cli
+          from:
+            kind: ImageStreamTag
+            name: 'flask-api:latest'
+- apiVersion: v1
+  kind: Service
+  metadata:
+    labels:
+      app: flask-api
+    name: flask-api
+  spec:
+    ports:
+    - name: 8080-tcp
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+    selector:
+      deploymentconfig: flask-api
+      
+- apiVersion: v1
+  kind: Route
+  metadata:
+    labels:
+      app: flask-api
+    name: flask-api
+  spec:
+    host: webapp-myproject.192.168.1.23.nip.io
+    path: /api/
+    port:
+      targetPort: 8080-tcp
+    to:
+      kind: Service
+      name: flask-api
+      weight: 100
+    wildcardPolicy: None
+
