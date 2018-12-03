@@ -10,13 +10,13 @@ oc new-project myproject
 
 ## Get base images from Red Hat repo
 
-For webapp compiled with npm:
+For vue-cli webapp we use a Node.js-based webapp builder:
 
 ```
 oc import-image my-rhoar-nodejs-tech-preview/rhoar-nodejs-10-webapp --from=registry.access.redhat.com/rhoar-nodejs-tech-preview/rhoar-nodejs-10-webapp --confirm
 ```
 
-For Flask/Python:
+For Flask/Python we use a standard Python image:
 
 ```
 oc import-image my-rhscl/python-36-rhel7 --from=registry.access.redhat.com/rhscl/python-36-rhel7 --confirm
