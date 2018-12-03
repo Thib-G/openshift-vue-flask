@@ -2,7 +2,7 @@
   <div class="home">
     <img alt="Vue logo" src="../assets/logo.png"> +
     <img alt="Flask logo" src="../assets/flask.png" height="150">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <HelloWorld msg="Welcome to Your Vue.js/Flask App on OpenShift"/>
     <p>Message from API: {{ msg }}</p>
   </div>
 </template>
