@@ -92,9 +92,9 @@ items:
   metadata:
     labels:
       app: flask-api
-    name: flask-api
+    name: webapp
   spec:
-    host: webapp-myproject.192.168.1.23.nip.io
+    #host: webapp-myproject.192.168.1.23.nip.io
     path: /api/
     port:
       targetPort: 8080-tcp
