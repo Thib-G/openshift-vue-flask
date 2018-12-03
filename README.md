@@ -35,3 +35,5 @@ Back-end:
 ```
 oc create -f flask-api.yml
 ```
+
+Note: you may need to change the route host to better suit your configuration.
